@@ -9,7 +9,7 @@ st.title("Bitcoin Price Interactive Visualization")
 @st.cache_data
 def load_data():
     # Carica il CSV
-    df = pd.read_csv("/Users/alessiabattistella/Desktop/btc1.csv")  # aggiorna percorso/nome file
+    df = pd.read_csv("btc1.csv")  # aggiorna percorso/nome file
     
     # Rimuove eventuali spazi nei nomi colonne
     df.columns = df.columns.str.strip()
