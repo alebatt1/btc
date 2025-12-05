@@ -8,8 +8,8 @@ st.title("Bitcoin Price Interactive Visualization")
 # Funzione per caricare e pulire i dati
 @st.cache_data
 def load_data():
-    # Carica il CSV
-    df = pd.read_csv("btc1.csv")  # aggiorna percorso/nome file
+    # Carica il CSV (aggiorna percorso/nome file se necessario)
+    df = pd.read_csv("btc1.csv")
     
     # Rimuove eventuali spazi nei nomi colonne
     df.columns = df.columns.str.strip()
@@ -23,22 +23,6 @@ def load_data():
     for col in numeric_cols:
         df[col] = df[col].astype(str).str.replace(',', '', regex=False)
         df[col] = pd.to_numeric(df[col], errors='coerce')
-    
-    # Pulizia Volume (Vol.) con K, M, B
-    def parse_volume(x):
-        if pd.isna(x):
-            return None
-        x = str(x).replace(',', '')  # rimuove eventuali virgole
-        if 'K' in x:
-            return float(x.replace('K','')) * 1_000
-        elif 'M' in x:
-            return float(x.replace('M','')) * 1_000_000
-        elif 'B' in x:
-            return float(x.replace('B','')) * 1_000_000_000
-        else:
-            return float(x)
-    
-    df['Vol.'] = df['Vol.'].apply(parse_volume)
     
     # Pulizia Change %
     df['Change %'] = df['Change %'].str.replace('%','', regex=False)
@@ -71,18 +55,9 @@ st.write("Filtered data preview:", df_filtered.head())
 
 # Grafico interattivo del prezzo (Price)
 line_chart = alt.Chart(df_filtered).mark_line(color='blue').encode(
-    x='Date',
-    y='Price',
-    tooltip=['Date', 'Open', 'High', 'Low', 'Price', 'Vol.', 'Change %']
+    x='Date:T',  # datetime
+    y='Price:Q',  # quantitativo
+    tooltip=['Date:T', 'Open:Q', 'High:Q', 'Low:Q', 'Price:Q', 'Change %:Q']
 ).interactive()
 
 st.altair_chart(line_chart, use_container_width=True)
-
-# Grafico del volume
-volume_chart = alt.Chart(df_filtered).mark_bar(opacity=0.3, color='orange').encode(
-    x='Date',
-    y='Vol.',
-    tooltip=['Date', 'Vol.']
-)
-
-st.altair_chart(volume_chart, use_container_width=True)
